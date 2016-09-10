@@ -1,5 +1,4 @@
 import pygame
-import random
 
 from .buttons import NewGameButton
 from .buttons import PauseButton
@@ -36,7 +35,7 @@ class GameBoard:
         self.lines_done = 0
         self.level = 1
         self.score = 0
-        
+
         self.__load_images()
 
         self.font = pygame.font.SysFont("arial black", 16)
@@ -53,15 +52,9 @@ class GameBoard:
         self.pause_button_image = load_image('start_stop_btn.png', False)
         self.new_button_image = load_image('new_game_btn.png', False)
 
-        self.shape_images = {}
-        for index in range(1,7+1):
-            self.shape_images[index] = load_image('shape_{}_image.png'.format(index))
-
     def initialize(self,time):
         self.current_gp = None
-        shape_id = random.randint(1,7)
-        rand_rotate = random.randint(0,5)
-        self.next_gp = Shape(self, shape_id, self.get_shape_image(shape_id))
+        self.next_gp = Shape.random(self)
         for row in range(self.rows):
             self.cells.append([])
             for col in range(self.cols):
@@ -72,17 +65,14 @@ class GameBoard:
                 new_cell.y = row*self.cell_width + self.y
                 new_cell.rect.topleft = (new_cell.x, new_cell.y)
                 self.cells[row].append(new_cell)
-        for x in range(rand_rotate):
-            self.next_gp.rotate()
+        self.next_gp.rotate_random()
         self.next_gp.set_row_offset()
         self.generate_gp(time)
 
     def reset(self, time):
         self.paused = False
         self.current_gp = None
-        shape_id = random.randint(1,7)
-        rand_rotate = random.randint(0,5)
-        self.next_gp = Shape(self, shape_id, self.get_shape_image(shape_id))
+        self.next_gp = Shape.random(self)
         self.game_speed = 1000
         self.slow_time = False
         self.game_over = False
@@ -93,8 +83,7 @@ class GameBoard:
             for col in range(self.cols):
                 self.cells[row][col].active = False
                 self.cells[row][col].image = cell_image
-        for x in range(rand_rotate):
-            self.next_gp.rotate()
+        self.next_gp.rotate_random()
         self.next_gp.set_row_offset()
         self.next_gp.set_col_offset()
         self.generate_gp(time)
@@ -103,13 +92,10 @@ class GameBoard:
         self.key_down_flag = False
         self.key_left_flag = False
         self.key_right_flag = False
-        shape_id = random.randint(1,7)
-        rand_rotate = random.randint(0,5)
         self.current_gp = self.next_gp
         self.current_gp.last_move = time
-        self.next_gp = Shape(self, shape_id, self.get_shape_image(shape_id))
-        for x in range(rand_rotate):
-            self.next_gp.rotate()
+        self.next_gp = Shape.random(self)
+        self.next_gp.rotate_random()
         self.next_gp.set_row_offset()
         self.next_gp.set_col_offset()
         self.queue_image.fill((255,255,255))
@@ -235,9 +221,6 @@ class GameBoard:
                 self.cells[row][col].active = self.cells[row-1][col].active
                 self.cells[row][col].image = self.cells[row-1][col].image
 
-    def get_shape_image(self, shape_id):
-        return self.shape_images[shape_id]
-
     def game_over_prompt(self, surface):
         choice = False
         x = screen_w
@@ -262,7 +245,7 @@ class GameBoard:
         y = self.cell_height
         surface.blit(self.queue_image, (x,y))
         #pygame.draw.rect(surface, (0,0,0), ((x-1,y-1),(self.queue_image.get_width()+2, self.queue_image.get_height()+2)), 2)
-        
+
         font_w_next,font_h = self.font.size("NEXT")
         x += ((self.queue_image.get_width()/2) - (font_w_next/2))
         y -= font_h

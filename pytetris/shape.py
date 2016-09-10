@@ -1,6 +1,32 @@
+from random import choice, randint
 from .piece import Piece
+from .util import load_image
 
 class Shape:
+    SHAPE_REGISTRY = {
+        "z-reverse": {"id": 1, "filename": "gem_purple.png"},
+        "pipe": {"id": 2, "filename": "gem_blue.png"},
+        "join": {"id": 3, "filename": "gem_teal.png"},
+        "square": {"id": 4, "filename": "gem_pink.png"},
+        "z-normal": {"id": 5, "filename": "gem_white.png"},
+        "l-normal": {"id": 6, "filename": "gem_green.png"},
+        "l-reverse": {"id": 7, "filename": "gem_yellow.png"},
+    }
+    SHAPE_IMAGES_LOADED = False
+
+    @classmethod
+    def load_images(cls):
+        for shape_recipe in cls.SHAPE_REGISTRY.values():
+            shape_recipe["image"] = load_image(shape_recipe["filename"])
+        cls.SHAPE_IMAGES_LOADED = True
+
+    @classmethod
+    def random(cls, game_board):
+        if not cls.SHAPE_IMAGES_LOADED:
+            cls.load_images()
+        shape_recipe = cls.SHAPE_REGISTRY[choice(cls.SHAPE_REGISTRY.keys())]
+        return cls(game_board, shape_recipe["id"], shape_recipe["image"])
+
     def __init__(self, game_board, shape, image):
         self.pieces = []
         self.game_board = game_board
@@ -85,6 +111,10 @@ class Shape:
 
     def update(self, time):
         pass
+
+    def rotate_random(self):
+        for _ in range(randint(0,4)):
+            self.rotate()
 
     def rotate(self):
         if self.shape == 1:
