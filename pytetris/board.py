@@ -64,11 +64,8 @@ class GameBoard:
         
         self.__load_images()
 
-        image = load_image('start_stop_btn.png', False)
-        PauseButton(self, image, ((self.cols+1)*self.cell_width, ((self.rows)*self.cell_height) - 45))
-        
-        image = load_image('new_game_btn.png', False)
-        NewGameButton(self, image, ((self.cols+4)*self.cell_width, ((self.rows)*self.cell_height) - 45))
+        PauseButton(self, self.pause_button_image, ((self.cols+1)*self.cell_width, ((self.rows)*self.cell_height) - 45))
+        NewGameButton(self, self.new_button_image, ((self.cols+4)*self.cell_width, ((self.rows)*self.cell_height) - 45))
 
     def __load_images(self):
         self.cell_image = load_image('cell1.png')
@@ -76,6 +73,8 @@ class GameBoard:
         self.board_bg_image = load_image('board_bg.png', False)
         self.queue_bg_image = load_image('queue_bg_color.png', False)
         self.side_bar_image = load_image('side_bar.png', False)
+        self.pause_button_image = load_image('start_stop_btn.png', False)
+        self.new_button_image = load_image('new_game_btn.png', False)
 
         self.shape_images = {}
         for index in range(1,7+1):
