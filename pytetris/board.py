@@ -1,8 +1,8 @@
 import pygame, random
 import os
-from Game_Piece import *
-from pyButton import Button
-from pyButton import EXIT_BUTTON
+from piece import *
+from button import Button
+from button import EXIT_BUTTON
 
 IMAGE_DIRECTORY=os.path.join('resources','images')
 SOUND_DIRECTORY='resources'

@@ -1,1 +1,3 @@
-import pytetris.Clone_of_Tetris
+from pytetris.game import Game
+
+Game.execute()
