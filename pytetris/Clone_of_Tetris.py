@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from Game_Board import *
+from .Game_Board import *
 from sys import exit
 
 running = True

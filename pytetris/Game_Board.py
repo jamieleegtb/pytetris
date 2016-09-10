@@ -1,12 +1,24 @@
 import pygame, random
+import os
 from Game_Piece import *
 from pyButton import Button
 from pyButton import EXIT_BUTTON
+
+IMAGE_DIRECTORY=os.path.join('resources','images')
+SOUND_DIRECTORY='resources'
+
+def load_image(filename,color_key=(255,0,255)):
+    image = pygame.image.load(os.path.join(IMAGE_DIRECTORY, filename)).convert()
+    if color_key: 
+        image.set_colorkey(color_key)
+    return image
+
+
 pygame.mixer.pre_init(44100, -16, 2, 2048)
 
 pygame.init()
 
-pygame.mixer.music.load('bg_music.ogg')
+pygame.mixer.music.load('{}/bg_music.ogg'.format(SOUND_DIRECTORY))
 pygame.mixer.music.set_volume(0.3)
 
 #remove_row_sound = pygame.mixer.Sound('vaporize_1.ogg')
@@ -20,38 +32,31 @@ pygame.display.set_caption("Clone of Tetris")
 font = pygame.font.SysFont("arial black", 16)
 
 clock = pygame.time.Clock()
-cell_image = pygame.image.load('cell1.png').convert()
-cell_image.set_colorkey((255,0,255))
-shape_1_image = pygame.image.load('shape_1_image.png').convert()
-shape_1_image.set_colorkey((255,0,255))
-shape_2_image = pygame.image.load('shape_2_image.png').convert()
-shape_2_image.set_colorkey((255,0,255))
-shape_3_image = pygame.image.load('shape_3_image.png').convert()
-shape_3_image.set_colorkey((255,0,255))
-shape_4_image = pygame.image.load('shape_4_image.png').convert()
-shape_4_image.set_colorkey((255,0,255))
-shape_5_image = pygame.image.load('shape_5_image.png').convert()
-shape_5_image.set_colorkey((255,0,255))
-shape_6_image = pygame.image.load('shape_6_image.png').convert()
-shape_6_image.set_colorkey((255,0,255))
-shape_7_image = pygame.image.load('shape_7_image.png').convert()
-shape_7_image.set_colorkey((255,0,255))
-game_over_image = pygame.image.load('game_over.png').convert()
-game_over_image.set_colorkey((255,0,255))
-board_bg = pygame.image.load('board_bg.png').convert()
-queue_bg = pygame.image.load('queue_bg_color.png').convert()
-side_bar = pygame.image.load('side_bar.png').convert()
+cell_image = load_image('cell1.png')
+shape_1_image = load_image('shape_1_image.png')
+shape_2_image = load_image('shape_2_image.png')
+shape_3_image = load_image('shape_3_image.png')
+shape_4_image = load_image('shape_4_image.png')
+shape_5_image = load_image('shape_5_image.png')
+shape_6_image = load_image('shape_6_image.png')
+shape_7_image = load_image('shape_7_image.png')
+game_over_image = load_image('game_over.png')
+board_bg = load_image('board_bg.png', False)
+queue_bg = load_image('queue_bg_color.png', False)
+side_bar = load_image('side_bar.png', False)
 
 
 class Pause_Button(Button):
     def __init__(self, parent, position = (300,300)):
-        Button.__init__(self, parent, 'Start / Pause', pygame.image.load('start_stop_btn.png').convert(), position)
+        image = load_image('start_stop_btn.png', False)
+        Button.__init__(self, parent, 'Start / Pause', image, position)
     def on_click(self):
         self.parent.paused = not self.parent.paused
 
 class New_Game_Button(Button):
     def __init__(self, parent, position = (300,300)):
-        Button.__init__(self, parent, 'New Game', pygame.image.load('new_game_btn.png').convert(), position)
+        image = load_image('new_game_btn.png', False)
+        Button.__init__(self, parent, 'New Game', image, position)
     def on_click(self):
         self.parent.reset(pygame.time.get_ticks())
 
