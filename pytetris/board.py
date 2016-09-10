@@ -1,18 +1,17 @@
 import pygame, random
 import os
+
+from cell import Cell
 from piece import *
-from button import Button
-from button import EXIT_BUTTON
 
-IMAGE_DIRECTORY=os.path.join('resources','images')
+from .buttons import Button
+from .buttons import ExitButton
+from .buttons import NewGameButton
+from .buttons import PauseButton
+
+from .util import load_image
+
 SOUND_DIRECTORY='resources'
-
-def load_image(filename,color_key=(255,0,255)):
-    image = pygame.image.load(os.path.join(IMAGE_DIRECTORY, filename)).convert()
-    if color_key: 
-        image.set_colorkey(color_key)
-    return image
-
 
 pygame.mixer.pre_init(44100, -16, 2, 2048)
 
@@ -32,45 +31,6 @@ pygame.display.set_caption("Clone of Tetris")
 font = pygame.font.SysFont("arial black", 16)
 
 clock = pygame.time.Clock()
-cell_image = load_image('cell1.png')
-shape_1_image = load_image('shape_1_image.png')
-shape_2_image = load_image('shape_2_image.png')
-shape_3_image = load_image('shape_3_image.png')
-shape_4_image = load_image('shape_4_image.png')
-shape_5_image = load_image('shape_5_image.png')
-shape_6_image = load_image('shape_6_image.png')
-shape_7_image = load_image('shape_7_image.png')
-game_over_image = load_image('game_over.png')
-board_bg = load_image('board_bg.png', False)
-queue_bg = load_image('queue_bg_color.png', False)
-side_bar = load_image('side_bar.png', False)
-
-
-class Pause_Button(Button):
-    def __init__(self, parent, position = (300,300)):
-        image = load_image('start_stop_btn.png', False)
-        Button.__init__(self, parent, 'Start / Pause', image, position)
-    def on_click(self):
-        self.parent.paused = not self.parent.paused
-
-class New_Game_Button(Button):
-    def __init__(self, parent, position = (300,300)):
-        image = load_image('new_game_btn.png', False)
-        Button.__init__(self, parent, 'New Game', image, position)
-    def on_click(self):
-        self.parent.reset(pygame.time.get_ticks())
-
-class Cell(pygame.sprite.Sprite):
-    def __init__(self, image):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = image
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (0,0)
-        self.active = False
-        self.row = 0
-        self.col = 0
-        self.x = 0
-        self.y = 0
 
 class GameBoard:
     def __init__(self):
@@ -101,8 +61,25 @@ class GameBoard:
         self.lines_done = 0
         self.level = 1
         self.score = 0
-        Pause_Button(self, ((self.cols+1)*self.cell_width, ((self.rows)*self.cell_height) - 45))
-        New_Game_Button(self, ((self.cols+4)*self.cell_width, ((self.rows)*self.cell_height) - 45))
+        
+        self.__load_images()
+
+        image = load_image('start_stop_btn.png', False)
+        PauseButton(self, image, ((self.cols+1)*self.cell_width, ((self.rows)*self.cell_height) - 45))
+        
+        image = load_image('new_game_btn.png', False)
+        NewGameButton(self, image, ((self.cols+4)*self.cell_width, ((self.rows)*self.cell_height) - 45))
+
+    def __load_images(self):
+        self.cell_image = load_image('cell1.png')
+        self.game_over_image = load_image('game_over.png')
+        self.board_bg_image = load_image('board_bg.png', False)
+        self.queue_bg_image = load_image('queue_bg_color.png', False)
+        self.side_bar_image = load_image('side_bar.png', False)
+
+        self.shape_images = {}
+        for index in range(1,7+1):
+            self.shape_images[index] = load_image('shape_1_image.png')
 
     def initialize(self,time):
         self.current_gp = None
@@ -112,7 +89,7 @@ class GameBoard:
         for row in range(self.rows):
             self.cells.append([])
             for col in range(self.cols):
-                new_cell = Cell(cell_image)
+                new_cell = Cell(self.cell_image)
                 new_cell.row = row
                 new_cell.col = col
                 new_cell.x = col*self.cell_height + self.x
@@ -173,7 +150,7 @@ class GameBoard:
                 gp_cols += 1
         x_offset = (self.queue_image.get_width()/2) - ((gp_cols * self.cell_width)/2)
         y_offset = (self.queue_image.get_height()/2) - ((gp_rows * self.cell_height)/2)
-        self.queue_image.blit(queue_bg, (0,0))
+        self.queue_image.blit(self.queue_bg_image, (0,0))
         for gp in self.next_gp.pieces:
             if self.next_gp.shape == 2 and self.next_gp.shape_rotation == 1:
                 x = x_offset
@@ -249,20 +226,7 @@ class GameBoard:
                 self.cells[row][col].image = self.cells[row-1][col].image
 
     def get_shape_image(self, shape_id):
-        if shape_id == 1:
-            return shape_1_image
-        if shape_id == 2:
-            return shape_2_image
-        if shape_id == 3:
-            return shape_3_image
-        if shape_id == 4:
-            return shape_4_image
-        if shape_id == 5:
-            return shape_5_image
-        if shape_id == 6:
-            return shape_6_image
-        if shape_id == 7:
-            return shape_7_image
+        return self.shape_images[shape_id]
 
     def game_over_prompt(self, surface):
         choice = False
@@ -282,8 +246,8 @@ class GameBoard:
                         return True
 
     def draw(self, surface):
-        surface.blit(board_bg, (0,0))
-        surface.blit(side_bar, ((14*31),0))
+        surface.blit(self.board_bg_image, (0,0))
+        surface.blit(self.side_bar_image, ((14*31),0))
         x = (self.cols + 1) * self.cell_width
         y = self.cell_height
         surface.blit(self.queue_image, (x,y))

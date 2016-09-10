@@ -1,5 +1,4 @@
 import pygame
-from pygame.locals import *
 
 class Button:
     def __init__(self, parent = None, name = 'NEW_BUTTON', image = None, position = (1,1), size = (80,28)):
@@ -45,9 +44,3 @@ class Button:
             pygame.draw.rect(surface, (255,255,255), self.rect,0)
             surface.blit(self.font.render(self.name, True, (0,0,0)), (self.x+(self.width/2)-(self.font_w/2),self.y+(self.height/2)-(self.font_h/2)))
 
-class EXIT_BUTTON(Button):
-    def __init__(self, parent, position = (800-81,1)):
-        Button.__init__(self, parent,'EXIT', None, position)
-
-    def on_click(self):
-        pygame.event.post(pygame.event.Event(QUIT))
