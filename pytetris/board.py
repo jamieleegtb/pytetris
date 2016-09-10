@@ -2,7 +2,7 @@ import pygame, random
 import os
 
 from cell import Cell
-from piece import *
+from shape import Shape
 
 from .buttons import Button
 from .buttons import ExitButton
@@ -84,7 +84,7 @@ class GameBoard:
         self.current_gp = None
         shape_id = random.randint(1,7)
         rand_rotate = random.randint(0,5)
-        self.next_gp = GameShape(self, shape_id, self.get_shape_image(shape_id))
+        self.next_gp = Shape(self, shape_id, self.get_shape_image(shape_id))
         for row in range(self.rows):
             self.cells.append([])
             for col in range(self.cols):
@@ -105,7 +105,7 @@ class GameBoard:
         self.current_gp = None
         shape_id = random.randint(1,7)
         rand_rotate = random.randint(0,5)
-        self.next_gp = GameShape(self, shape_id, self.get_shape_image(shape_id))
+        self.next_gp = Shape(self, shape_id, self.get_shape_image(shape_id))
         self.game_speed = 1000
         self.slow_time = False
         self.game_over = False
@@ -130,7 +130,7 @@ class GameBoard:
         rand_rotate = random.randint(0,5)
         self.current_gp = self.next_gp
         self.current_gp.last_move = time
-        self.next_gp = GameShape(self, shape_id, self.get_shape_image(shape_id))
+        self.next_gp = Shape(self, shape_id, self.get_shape_image(shape_id))
         for x in range(rand_rotate):
             self.next_gp.rotate()
         self.next_gp.set_row_offset()
