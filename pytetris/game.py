@@ -1,7 +1,7 @@
 import pygame
-from pygame.locals import *
-from .board import *
-from sys import exit
+
+from .board import GameBoard
+from .util import load_music
 
 class Game:
     def __init__(self, **kwargs):

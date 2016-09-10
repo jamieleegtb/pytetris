@@ -1,16 +1,11 @@
-import pygame, random
-import os
+import pygame
+import random
 
-from cell import Cell
-from shape import Shape
-
-from .buttons import Button
-from .buttons import ExitButton
 from .buttons import NewGameButton
 from .buttons import PauseButton
-
+from .cell import Cell
+from .shape import Shape
 from .util import load_image
-from .util import load_music
 
 class GameBoard:
     def __init__(self):

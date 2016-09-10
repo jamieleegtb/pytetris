@@ -1,4 +1,4 @@
-from piece import Piece
+from .piece import Piece
 
 class Shape:
     def __init__(self, game_board, shape, image):
