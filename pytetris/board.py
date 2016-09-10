@@ -171,8 +171,42 @@ class GameBoard:
             self.check_rows()
             self.generate_gp(time)
 
+    def register_game_key_down(self,key):
+        if key == pygame.K_g:
+            self.toggle_grid()
+            self.update(pygame.time.get_ticks())
+        elif key == pygame.K_s:
+            self.toggle_slow_time()
+        elif key == pygame.K_LEFT:
+            if self.last_strafe == 0:
+                self.current_gp.move_left()
+                self.last_strafe = (pygame.time.get_ticks()+250)
+                self.key_left_flag = True
+        elif key == pygame.K_RIGHT:
+            if self.last_strafe == 0:
+                self.current_gp.move_right()
+                self.last_strafe = (pygame.time.get_ticks()+250)
+                self.key_right_flag = True
+        elif key == pygame.K_DOWN:
+            self.key_down_flag = True
+        elif key == pygame.K_UP:
+            self.current_gp.rotate()
+
+    def register_game_key_up(self, key):
+        if key == pygame.K_DOWN:
+            self.key_down_flag = False
+        elif key == pygame.K_LEFT:
+            self.key_left_flag = False
+            self.last_strafe = 0
+        elif key == pygame.K_RIGHT:
+            self.key_right_flag = False
+            self.last_strafe = 0
+
     def toggle_grid(self):
         self.show_grid = not self.show_grid
+
+    def toggle_slow_time(self):
+        self.slow_time = not self.slow_time
 
     def check_rows(self):
         row_count = 0
@@ -259,4 +293,3 @@ class GameBoard:
             buttons.draw(surface)
         for buttons in self.buttons:
             buttons.draw(surface)
-
