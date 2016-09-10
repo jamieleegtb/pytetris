@@ -7,7 +7,7 @@ from .shape import Shape
 from .util import load_image
 
 class GameBoard:
-    def __init__(self):
+    def __init__(self, width, height):
         self.x = 0
         self.y = 0
         self.cells = []
@@ -35,6 +35,11 @@ class GameBoard:
         self.lines_done = 0
         self.level = 1
         self.score = 0
+
+        self.screen_width = width
+        self.screen_height = height
+
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), 0, 32)
 
         self.__load_images()
 
@@ -69,7 +74,7 @@ class GameBoard:
         self.next_gp.set_row_offset()
         self.generate_gp(time)
 
-    def reset(self, time):
+    def reset(self):
         self.paused = False
         self.current_gp = None
         self.next_gp = Shape.random(self)
@@ -82,11 +87,11 @@ class GameBoard:
         for row in range(self.rows):
             for col in range(self.cols):
                 self.cells[row][col].active = False
-                self.cells[row][col].image = cell_image
+                self.cells[row][col].image = self.cell_image
         self.next_gp.rotate_random()
         self.next_gp.set_row_offset()
         self.next_gp.set_col_offset()
-        self.generate_gp(time)
+        self.generate_gp(pygame.time.get_ticks())
 
     def generate_gp(self, time):
         self.key_down_flag = False
@@ -122,9 +127,17 @@ class GameBoard:
             self.queue_image.blit(gp.image, (x, y))
 
 
-    def update(self, time):
-        if self.paused or self.game_over:
+    def update(self):
+        if self.game_over and not self.paused:
+            self.paused = True
+            self.__draw_game_over()
+
+        if self.paused:
             return
+
+        self.__refresh_screen()
+
+        time = pygame.time.get_ticks()
         if self.current_gp.active:
             speed = self.game_speed
             if self.slow_time:
@@ -152,26 +165,32 @@ class GameBoard:
             self.check_rows()
             self.generate_gp(time)
 
-    def register_game_key_down(self,key):
-        if key == pygame.K_g:
-            self.toggle_grid()
-            self.update(pygame.time.get_ticks())
-        elif key == pygame.K_s:
-            self.toggle_slow_time()
-        elif key == pygame.K_LEFT:
-            if self.last_strafe == 0:
-                self.current_gp.move_left()
-                self.last_strafe = (pygame.time.get_ticks()+250)
-                self.key_left_flag = True
-        elif key == pygame.K_RIGHT:
-            if self.last_strafe == 0:
-                self.current_gp.move_right()
-                self.last_strafe = (pygame.time.get_ticks()+250)
-                self.key_right_flag = True
-        elif key == pygame.K_DOWN:
-            self.key_down_flag = True
-        elif key == pygame.K_UP:
-            self.current_gp.rotate()
+    def register_game_key_down(self, key):
+        if key == pygame.K_p:
+            self.paused = not self.paused
+        if self.paused:
+            if self.game_over:
+                self.reset()
+        else:
+            if key == pygame.K_g:
+                self.toggle_grid()
+                self.update(pygame.time.get_ticks())
+            elif key == pygame.K_s:
+                self.toggle_slow_time()
+            elif key == pygame.K_LEFT:
+                if self.last_strafe == 0:
+                    self.current_gp.move_left()
+                    self.last_strafe = (pygame.time.get_ticks()+250)
+                    self.key_left_flag = True
+            elif key == pygame.K_RIGHT:
+                if self.last_strafe == 0:
+                    self.current_gp.move_right()
+                    self.last_strafe = (pygame.time.get_ticks()+250)
+                    self.key_right_flag = True
+            elif key == pygame.K_DOWN:
+                self.key_down_flag = True
+            elif key == pygame.K_UP:
+                self.current_gp.rotate()
 
     def register_game_key_up(self, key):
         if key == pygame.K_DOWN:
@@ -221,22 +240,18 @@ class GameBoard:
                 self.cells[row][col].active = self.cells[row-1][col].active
                 self.cells[row][col].image = self.cells[row-1][col].image
 
-    def game_over_prompt(self, surface):
-        choice = False
-        x = screen_w
-        y = screen_h
-        xx = game_over_image.get_width()
-        yy = game_over_image.get_height()
-        surface.blit(game_over_image, ((x - xx)/2, (y - yy)/2))
-        pygame.display.flip()
-        while not choice:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        return False
-                    if event.key == pygame.K_n:
-                        self.reset(pygame.time.get_ticks())
-                        return True
+    def __refresh_screen(self):
+        self.screen.fill((175,175,175))
+        self.draw(self.screen)
+
+    def __draw_game_over(self):
+        xx = self.game_over_image.get_width()
+        yy = self.game_over_image.get_height()
+        draw_shape = (
+            (self.screen_width - xx)/2,
+            (self.screen_height - yy)/2,
+        )
+        self.screen.blit(self.game_over_image, draw_shape)
 
     def draw(self, surface):
         surface.blit(self.board_bg_image, (0,0))
