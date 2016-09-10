@@ -79,7 +79,7 @@ class GameBoard:
 
         self.shape_images = {}
         for index in range(1,7+1):
-            self.shape_images[index] = load_image('shape_1_image.png')
+            self.shape_images[index] = load_image('shape_{}_image.png'.format(index))
 
     def initialize(self,time):
         self.current_gp = None
