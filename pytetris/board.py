@@ -49,7 +49,6 @@ class GameBoard:
         NewGameButton(self, self.new_button_image, ((self.cols+4)*self.cell_width, ((self.rows)*self.cell_height) - 45))
 
     def __load_images(self):
-        self.cell_image = load_image('cell1.png')
         self.game_over_image = load_image('game_over.png')
         self.board_bg_image = load_image('board_bg.png', False)
         self.queue_bg_image = load_image('queue_bg_color.png', False)
@@ -63,13 +62,12 @@ class GameBoard:
         for row in range(self.rows):
             self.cells.append([])
             for col in range(self.cols):
-                new_cell = Cell(self.cell_image)
-                new_cell.row = row
-                new_cell.col = col
-                new_cell.x = col*self.cell_height + self.x
-                new_cell.y = row*self.cell_width + self.y
-                new_cell.rect.topleft = (new_cell.x, new_cell.y)
-                self.cells[row].append(new_cell)
+                self.cells[row].append(Cell(
+                    row=row,
+                    column=col,
+                    x_coordinate=col*self.cell_height + self.x,
+                    y_coordinate=row*self.cell_width + self.y,
+                ))
         self.next_gp.rotate_random()
         self.next_gp.set_row_offset()
         self.generate_gp(time)
@@ -87,7 +85,7 @@ class GameBoard:
         for row in range(self.rows):
             for col in range(self.cols):
                 self.cells[row][col].active = False
-                self.cells[row][col].image = self.cell_image
+                self.cells[row][col].clear()
         self.next_gp.rotate_random()
         self.next_gp.set_row_offset()
         self.next_gp.set_col_offset()
