@@ -10,27 +10,7 @@ from .buttons import NewGameButton
 from .buttons import PauseButton
 
 from .util import load_image
-
-SOUND_DIRECTORY='resources'
-
-pygame.mixer.pre_init(44100, -16, 2, 2048)
-
-pygame.init()
-
-pygame.mixer.music.load('{}/bg_music.ogg'.format(SOUND_DIRECTORY))
-pygame.mixer.music.set_volume(0.3)
-
-#remove_row_sound = pygame.mixer.Sound('vaporize_1.ogg')
-#if not remove_row_sound:
-    #pygame.event.post(pygame.QUIT)
-
-screen_w = 651
-screen_h = 651
-screen = pygame.display.set_mode((screen_w,screen_h), 0, 32)
-pygame.display.set_caption("Clone of Tetris")
-font = pygame.font.SysFont("arial black", 16)
-
-clock = pygame.time.Clock()
+from .util import load_music
 
 class GameBoard:
     def __init__(self):
@@ -63,6 +43,8 @@ class GameBoard:
         self.score = 0
         
         self.__load_images()
+
+        self.font = pygame.font.SysFont("arial black", 16)
 
         PauseButton(self, self.pause_button_image, ((self.cols+1)*self.cell_width, ((self.rows)*self.cell_height) - 45))
         NewGameButton(self, self.new_button_image, ((self.cols+4)*self.cell_width, ((self.rows)*self.cell_height) - 45))
@@ -251,13 +233,16 @@ class GameBoard:
         y = self.cell_height
         surface.blit(self.queue_image, (x,y))
         #pygame.draw.rect(surface, (0,0,0), ((x-1,y-1),(self.queue_image.get_width()+2, self.queue_image.get_height()+2)), 2)
-        surface.blit(font.render("LEVEL: %d" %self.level, True, (255,255,255)), (x, (surface.get_height() - (20*font.get_height()))))
-        surface.blit(font.render("LINES: %d" %self.lines_done, True, (255,255,255)), (x, (surface.get_height() - (19*font.get_height()))))
-        surface.blit(font.render("SCORE: %d" %self.score, True, (255,255,255)), (x, (surface.get_height() - (18*font.get_height()))))
-        font_w,font_h = font.size("NEXT")
-        x += ((self.queue_image.get_width()/2) - (font_w/2))
+        
+        font_w_next,font_h = self.font.size("NEXT")
+        x += ((self.queue_image.get_width()/2) - (font_w_next/2))
         y -= font_h
-        surface.blit(font.render("NEXT", True, (255,255,255)), (x,y))
+        surface.blit(self.font.render("NEXT", True, (255,255,255)), (x,y))
+
+        surface.blit(self.font.render("LEVEL: %d" %self.level, True, (255,255,255)), (x, (surface.get_height() - (20*font_h))))
+        surface.blit(self.font.render("LINES: %d" %self.lines_done, True, (255,255,255)), (x, (surface.get_height() - (19*font_h))))
+        surface.blit(self.font.render("SCORE: %d" %self.score, True, (255,255,255)), (x, (surface.get_height() - (18*font_h))))
+
         border_topx, border_topy = self.cells[0][0].rect.topleft
         border_btmx, border_btmy = self.cells[20][13].rect.bottomright
         pygame.draw.rect(surface, (0,0,0), ((border_topx,border_topy),(border_btmx+1,border_btmy)), 1)

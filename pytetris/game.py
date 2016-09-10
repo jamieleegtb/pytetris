@@ -6,6 +6,24 @@ from sys import exit
 class Game:
     @classmethod
     def execute(cls):
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
+
+        pygame.init()
+
+        load_music('bg_music.ogg')
+        pygame.mixer.music.set_volume(0.3)
+
+        #remove_row_sound = pygame.mixer.Sound('vaporize_1.ogg')
+        #if not remove_row_sound:
+            #pygame.event.post(pygame.QUIT)
+
+        screen_w = 651
+        screen_h = 651
+        screen = pygame.display.set_mode((screen_w,screen_h), 0, 32)
+        pygame.display.set_caption("Clone of Tetris")
+
+        clock = pygame.time.Clock()
+
         running = True
         board = GameBoard()
         board.initialize(pygame.time.get_ticks())

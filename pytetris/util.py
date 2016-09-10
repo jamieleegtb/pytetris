@@ -8,3 +8,8 @@ def load_image(filename,color_key=(255,0,255)):
     if color_key: 
         image.set_colorkey(color_key)
     return image
+
+SOUND_DIRECTORY='resources'
+
+def load_music(filename):
+    pygame.mixer.music.load(os.path.join(SOUND_DIRECTORY, filename))
