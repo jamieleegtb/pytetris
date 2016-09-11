@@ -36,7 +36,7 @@ class Game:
 
     def run(self):
         self.is_running = True
-        self.board.initialize(pygame.time.get_ticks())
+        self.board.initialize()
 
         while self.is_running:
             if not pygame.mixer.music.get_busy():

@@ -25,13 +25,10 @@ class GameBoard:
         self.buttons = []
         self.width = self.cell_width * self.columns
         self.height = self.cell_height * self.rows
-        self.current_gp = None
-        self.next_gp = None
+        self.current_piece = None
+        self.next_piece = None
         self.queue_image = pygame.Surface(kwargs["queue_dimensions"])
         self.last_strafe = 0
-        self.key_down_flag = False
-        self.key_left_flag = False
-        self.key_right_flag = False
         self.paused = False
         self.game_over = False
         self.original_shape_speed = self.shape_speed
@@ -44,6 +41,7 @@ class GameBoard:
                 self.display_depth
         )
 
+        self.__reset_key_flags()
         self.__load_images()
 
         self.font = pygame.font.SysFont("arial black", self.font_size)
@@ -63,74 +61,87 @@ class GameBoard:
         self.pause_button_image = load_image('start_stop_btn.png', False)
         self.new_button_image = load_image('new_game_btn.png', False)
 
-    def initialize(self,time):
-        self.current_gp = None
-        self.next_gp = Shape.random(self)
-        for row in range(self.rows):
-            self.cells.append([])
-            for col in range(self.columns):
-                self.cells[row].append(Cell(
-                    row=row,
-                    column=col,
-                    x_coordinate=col*self.cell_height + self.coordinate_x,
-                    y_coordinate=row*self.cell_width + self.coordinate_y,
-                ))
-        self.next_gp.rotate_random()
-        self.next_gp.set_row_offset()
-        self.generate_gp(time)
+    def __initialize_grid(self):
+        if self.cells == []:
+            for row in range(self.rows):
+                self.cells.append([])
+                for col in range(self.columns):
+                    self.cells[row].append(Cell(
+                        row=row,
+                        column=col,
+                        x_coordinate=col*self.cell_height + self.coordinate_x,
+                        y_coordinate=row*self.cell_width + self.coordinate_y,
+                    ))
+        else:
+            for row in range(self.rows):
+                for col in range(self.columns):
+                    self.cells[row][col].active = False
+                    self.cells[row][col].clear()
+
+    def __initialize_shapes(self):
+        self.current_piece = None
+        self.generate_piece()
+
+    def initialize(self):
+        self.__initialize_grid()
+        self.__initialize_shapes()
 
     def reset(self):
+        self.shape_speed = self.original_shape_speed
         self.paused = False
-        self.current_gp = None
-        self.next_gp = Shape.random(self)
-        self.shape_speed = original_shape_speed
         self.slow_time = False
         self.game_over = False
         self.rows_shifted = 0
         self.level = 1
         self.score = 0
-        for row in range(self.rows):
-            for col in range(self.columns):
-                self.cells[row][col].active = False
-                self.cells[row][col].clear()
-        self.next_gp.rotate_random()
-        self.next_gp.set_row_offset()
-        self.next_gp.set_col_offset()
-        self.generate_gp(pygame.time.get_ticks())
+        self.__initialize_grid()
+        self.__initialize_shapes()
 
-    def generate_gp(self, time):
-        self.key_down_flag = False
-        self.key_left_flag = False
-        self.key_right_flag = False
-        self.current_gp = self.next_gp
-        self.current_gp.last_move = time
-        self.next_gp = Shape.random(self)
-        self.next_gp.rotate_random()
-        self.next_gp.set_row_offset()
-        self.next_gp.set_col_offset()
-        # self.queue_image.fill((255,255,255))
+    def generate_piece(self):
+        self.__reset_key_flags()
+
+        self.current_piece = self.next_piece
+
+        self.next_piece = Shape.random(self)
+        self.next_piece.rotate_random()
+        self.next_piece.set_row_offset()
+        self.next_piece.set_col_offset()
+        if self.current_piece is None:
+            self.generate_piece()
+        else:
+            self.current_piece.last_move = pygame.time.get_ticks()
+            self.__draw_next_piece()
+
+    def __draw_next_piece(self):
         col_index = []
         row_index = []
-        gp_rows = 0
-        gp_columns = 0
-        for gp in self.next_gp.pieces:
-            if gp.row not in row_index:
-                row_index.append(gp.row)
-                gp_rows += 1
-            if gp.col not in col_index:
-                col_index.append(gp.col)
-                gp_columns += 1
-        x_offset = (self.queue_image.get_width()/2) - ((gp_columns * self.cell_width)/2)
-        y_offset = (self.queue_image.get_height()/2) - ((gp_rows * self.cell_height)/2)
+        piece_rows = 0
+        piece_columns = 0
+        for piece in self.next_piece.pieces:
+            if piece.row not in row_index:
+                row_index.append(piece.row)
+                piece_rows += 1
+            if piece.col not in col_index:
+                col_index.append(piece.col)
+                piece_columns += 1
+        x_offset = (self.queue_image.get_width()/2) - ((piece_columns * self.cell_width)/2)
+        y_offset = (self.queue_image.get_height()/2) - ((piece_rows * self.cell_height)/2)
         self.queue_image.blit(self.queue_bg_image, (0,0))
-        for gp in self.next_gp.pieces:
-            if self.next_gp.shape == 2 and self.next_gp.shape_rotation == 1:
+        for piece in self.next_piece.pieces:
+            if self.next_piece.shape == 2 and self.next_piece.shape_rotation == 1:
                 x = x_offset
             else:
-                x = x_offset + ((gp.col - 6) * self.cell_width)
-            y = y_offset + (gp.row * self.cell_height)
-            self.queue_image.blit(gp.image, (x, y))
+                x = x_offset + ((piece.col - 6) * self.cell_width)
+            y = y_offset + (piece.row * self.cell_height)
+            self.queue_image.blit(piece.image, (x, y))
 
+    def __draw_current_piece(self):
+            for piece in self.current_piece.pieces:
+                if piece.row <= 0:
+                    piece.row = 0
+                    self.game_over = True
+                self.cells[piece.row][piece.col].active = True
+                self.cells[piece.row][piece.col].image = piece.image
 
     def update(self):
         if self.game_over and not self.paused:
@@ -143,32 +154,27 @@ class GameBoard:
         self.__refresh_screen()
 
         time = pygame.time.get_ticks()
-        if self.current_gp.active:
+        if self.current_piece.active:
             speed = self.shape_speed
             if self.slow_time:
                 speed = self.slow_time_shape_speed
             if self.key_down_flag:
                 speed = self.down_key_shape_speed
-            elif self.key_left_flag:
+            if self.key_left_flag:
                 if time - self.last_strafe >= self.strafe_rate:
-                    self.current_gp.move_left()
+                    self.current_piece.move_left()
                     self.last_strafe = time
             elif self.key_right_flag:
                 if time - self.last_strafe >= self.strafe_rate:
-                    self.current_gp.move_right()
+                    self.current_piece.move_right()
                     self.last_strafe = time
-            if time - self.current_gp.last_move >= speed:
-                self.current_gp.move_down()
-                self.current_gp.last_move = time
+            if time - self.current_piece.last_move >= speed:
+                self.current_piece.move_down()
+                self.current_piece.last_move = time
         else:
-            for gp in self.current_gp.pieces:
-                if gp.row <= 0:
-                    gp.row = 0
-                    self.game_over = True
-                self.cells[gp.row][gp.col].active = True
-                self.cells[gp.row][gp.col].image = gp.image
+            self.__draw_current_piece()
             self.check_rows()
-            self.generate_gp(time)
+            self.generate_piece()
 
     def register_game_key_down(self, key):
         if key == pygame.K_p:
@@ -184,18 +190,18 @@ class GameBoard:
                 self.toggle_slow_time()
             elif key == pygame.K_LEFT:
                 if self.last_strafe == 0:
-                    self.current_gp.move_left()
+                    self.current_piece.move_left()
                     self.last_strafe = (pygame.time.get_ticks()+self.strafe_tick_lag)
                     self.key_left_flag = True
             elif key == pygame.K_RIGHT:
                 if self.last_strafe == 0:
-                    self.current_gp.move_right()
+                    self.current_piece.move_right()
                     self.last_strafe = (pygame.time.get_ticks()+self.strafe_tick_lag)
                     self.key_right_flag = True
             elif key == pygame.K_DOWN:
                 self.key_down_flag = True
             elif key == pygame.K_UP:
-                self.current_gp.rotate()
+                self.current_piece.rotate()
 
     def register_game_key_up(self, key):
         if key == pygame.K_DOWN:
@@ -245,6 +251,11 @@ class GameBoard:
             self.shape_speed -= self.speed_change_per_level
             if self.shape_speed < self.speed_minimum:
                 self.shape_speed = self.speed_minimum
+
+    def __reset_key_flags(self):
+        self.key_down_flag = False
+        self.key_left_flag = False
+        self.key_right_flag = False
 
     def __refresh_screen(self):
         self.screen.blit(self.board_bg_image, (self.coordinate_x,self.coordinate_y))
@@ -307,6 +318,6 @@ class GameBoard:
                     self.screen.blit(cell.image, cell.rect.topleft)
                 if cell.active:
                     self.screen.blit(cell.image, cell.rect.topleft)
-        for gp in self.current_gp.pieces:
-            gp_position = self.cells[gp.row][gp.col].rect.topleft
-            self.screen.blit(gp.image, gp_position)
+        for piece in self.current_piece.pieces:
+            piece_position = self.cells[piece.row][piece.col].rect.topleft
+            self.screen.blit(piece.image, piece_position)

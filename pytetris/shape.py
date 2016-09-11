@@ -138,70 +138,71 @@ class Shape:
 
     def set_row_offset(self):
         flag_offset = False
-        for gp in self.pieces:
-            if gp.row > 0:
+        for piece in self.pieces:
+            if piece.row > 0:
                 flag_offset = True
             else:
                 flag_offset = False
                 return
         if flag_offset:
-            for gp in self.pieces:
-                gp.row -= 1
+            for piece in self.pieces:
+                piece.row -= 1
 
     def set_col_offset(self):
         col_index = []
-        gp_cols = 0
-        for gp in self.pieces:
-            if gp.col not in col_index:
-                col_index.append(gp.col)
-                gp_cols += 1
+        piece_cols = 0
+        for piece in self.pieces:
+            if piece.col not in col_index:
+                col_index.append(piece.col)
+                piece_cols += 1
         if 6 not in col_index and self.shape != 2:
-            for gp in self.pieces:
-                gp.col -= 1
+            for piece in self.pieces:
+                piece.col -= 1
+        return piece_cols
 
     def move_left(self):
         flag = False
-        for gp in self.pieces:
-            if gp.col > 0:
-                if self.game_board.cells[gp.row][gp.col-1].active:
+        for piece in self.pieces:
+            if piece.col > 0:
+                if self.game_board.cells[piece.row][piece.col-1].active:
                     flag = True
-            if gp.col == 0:
+            if piece.col == 0:
                 flag = True
         if flag:
             return
         else:
-            for gp in self.pieces:
-                gp.col -= 1
+            for piece in self.pieces:
+                piece.col -= 1
 
     def move_right(self):
         flag = False
-        for gp in self.pieces:
-            if gp.col != self.game_board.columns - 1:
-                if self.game_board.cells[gp.row][gp.col+1].active:
+        for piece in self.pieces:
+            if piece.col != self.game_board.columns - 1:
+                if self.game_board.cells[piece.row][piece.col+1].active:
                     flag = True
-            if gp.col == self.game_board.columns -1:
+            if piece.col == self.game_board.columns -1:
                 flag = True
         if flag:
             return
         else:
-            for gp in self.pieces:
-                gp.col += 1
+            for piece in self.pieces:
+                piece.col += 1
 
     def move_down(self):
         flag = False
-        for gp in self.pieces:
-            if gp.row < self.game_board.rows - 1:
-                if self.game_board.cells[gp.row+1][gp.col].active:
+        for piece in self.pieces:
+            if piece.row < self.game_board.rows - 1:
+                if self.game_board.cells[piece.row+1][piece.col].active:
                     flag = True
                     self.active = False
-            if gp.row == self.game_board.rows - 1 or gp.row < 0:
+            if piece.row == self.game_board.rows - 1 or piece.row < 0:
                 flag = True
                 self.active = False
         if flag:
             return
         else:
-            for gp in self.pieces:
-                gp.row += 1
+            for piece in self.pieces:
+                piece.row += 1
 
     def rotate_shape_1(self):
         flag_rotate = False
@@ -223,16 +224,16 @@ class Shape:
             self.pieces[2].row -= 1
             self.pieces[2].col += 1
             self.pieces[3].col += 2
-        for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.columns - 1:
+        for piece in self.pieces:
+            if piece.col < 0 or piece.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
-            if gp.row > self.game_board.rows - 1 or gp.row < 0:
+            if piece.row > self.game_board.rows - 1 or piece.row < 0:
                 flag_rotate = True
                 break
         if flag_rotate == False:
-            for gp in self.pieces:
-                if self.game_board.cells[gp.row][gp.col].active:
+            for piece in self.pieces:
+                if self.game_board.cells[piece.row][piece.col].active:
                     flag_rotate = True
                     break
         if flag_rotate:
@@ -271,16 +272,16 @@ class Shape:
             self.pieces[2].col -= 1
             self.pieces[3].row += 2
             self.pieces[3].col -= 2
-        for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.columns - 1:
+        for piece in self.pieces:
+            if piece.col < 0 or piece.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
-            if gp.row > self.game_board.rows - 1 or gp.row < 0:
+            if piece.row > self.game_board.rows - 1 or piece.row < 0:
                 flag_rotate = True
                 break
         if flag_rotate == False:
-            for gp in self.pieces:
-                if self.game_board.cells[gp.row][gp.col].active:
+            for piece in self.pieces:
+                if self.game_board.cells[piece.row][piece.col].active:
                     flag_rotate = True
                     break
         if flag_rotate:
@@ -333,16 +334,16 @@ class Shape:
             self.pieces[2].col += 1
             self.pieces[3].row += 1
             self.pieces[3].col -= 1
-        for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.columns - 1:
+        for piece in self.pieces:
+            if piece.col < 0 or piece.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
-            if gp.row > self.game_board.rows - 1 or gp.row < 0:
+            if piece.row > self.game_board.rows - 1 or piece.row < 0:
                 flag_rotate = True
                 break
         if flag_rotate == False:
-            for gp in self.pieces:
-                if self.game_board.cells[gp.row][gp.col].active:
+            for piece in self.pieces:
+                if self.game_board.cells[piece.row][piece.col].active:
                     flag_rotate = True
                     break
         if flag_rotate:
@@ -388,16 +389,16 @@ class Shape:
             self.pieces[2].row += 1
             self.pieces[2].col -= 1
             self.pieces[3].row += 2
-        for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.columns - 1:
+        for piece in self.pieces:
+            if piece.col < 0 or piece.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
-            if gp.row > self.game_board.rows - 1 or gp.row < 0:
+            if piece.row > self.game_board.rows - 1 or piece.row < 0:
                 flag_rotate = True
                 break
         if flag_rotate == False:
-            for gp in self.pieces:
-                if self.game_board.cells[gp.row][gp.col].active:
+            for piece in self.pieces:
+                if self.game_board.cells[piece.row][piece.col].active:
                     flag_rotate = True
                     break
         if flag_rotate:
@@ -447,16 +448,16 @@ class Shape:
             self.pieces[2].col += 1
             self.pieces[3].col -= 2
 
-        for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.columns - 1:
+        for piece in self.pieces:
+            if piece.col < 0 or piece.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
-            if gp.row > self.game_board.rows - 1 or gp.row < 0:
+            if piece.row > self.game_board.rows - 1 or piece.row < 0:
                 flag_rotate = True
                 break
         if flag_rotate == False:
-            for gp in self.pieces:
-                if self.game_board.cells[gp.row][gp.col].active:
+            for piece in self.pieces:
+                if self.game_board.cells[piece.row][piece.col].active:
                     flag_rotate = True
                     break
         if flag_rotate:
@@ -511,17 +512,17 @@ class Shape:
             self.pieces[2].row += 1
             self.pieces[2].col += 1
             self.pieces[3].row += 2
-        for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.columns - 1:
+        for piece in self.pieces:
+            if piece.col < 0 or piece.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
-            if gp.row > self.game_board.rows - 1 or gp.row < 0:
+            if piece.row > self.game_board.rows - 1 or piece.row < 0:
                 flag_rotate = True
                 break
 
         if flag_rotate == False:
-            for gp in self.pieces:
-                if self.game_board.cells[gp.row][gp.col].active:
+            for piece in self.pieces:
+                if self.game_board.cells[piece.row][piece.col].active:
                     flag_rotate = True
                     break
 
