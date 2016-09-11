@@ -176,10 +176,10 @@ class Shape:
     def move_right(self):
         flag = False
         for gp in self.pieces:
-            if gp.col != self.game_board.cols - 1:
+            if gp.col != self.game_board.columns - 1:
                 if self.game_board.cells[gp.row][gp.col+1].active:
                     flag = True
-            if gp.col == self.game_board.cols -1:
+            if gp.col == self.game_board.columns -1:
                 flag = True
         if flag:
             return
@@ -224,7 +224,7 @@ class Shape:
             self.pieces[2].col += 1
             self.pieces[3].col += 2
         for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.cols - 1:
+            if gp.col < 0 or gp.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
             if gp.row > self.game_board.rows - 1 or gp.row < 0:
@@ -272,7 +272,7 @@ class Shape:
             self.pieces[3].row += 2
             self.pieces[3].col -= 2
         for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.cols - 1:
+            if gp.col < 0 or gp.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
             if gp.row > self.game_board.rows - 1 or gp.row < 0:
@@ -334,7 +334,7 @@ class Shape:
             self.pieces[3].row += 1
             self.pieces[3].col -= 1
         for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.cols - 1:
+            if gp.col < 0 or gp.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
             if gp.row > self.game_board.rows - 1 or gp.row < 0:
@@ -389,7 +389,7 @@ class Shape:
             self.pieces[2].col -= 1
             self.pieces[3].row += 2
         for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.cols - 1:
+            if gp.col < 0 or gp.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
             if gp.row > self.game_board.rows - 1 or gp.row < 0:
@@ -448,7 +448,7 @@ class Shape:
             self.pieces[3].col -= 2
 
         for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.cols - 1:
+            if gp.col < 0 or gp.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
             if gp.row > self.game_board.rows - 1 or gp.row < 0:
@@ -512,7 +512,7 @@ class Shape:
             self.pieces[2].col += 1
             self.pieces[3].row += 2
         for gp in self.pieces:
-            if gp.col < 0 or gp.col > self.game_board.cols - 1:
+            if gp.col < 0 or gp.col > self.game_board.columns - 1:
                 flag_rotate = True
                 break
             if gp.row > self.game_board.rows - 1 or gp.row < 0:

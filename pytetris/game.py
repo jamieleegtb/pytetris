@@ -1,38 +1,51 @@
 import pygame
 
 from .board import GameBoard
+from .config import defaults
 from .util import load_music
 
 class Game:
+    LEFT_MOUSE_SEQUENCE_INDEX = 1
+
     def __init__(self, **kwargs):
+        options = defaults.copy()
+        options.update(kwargs)
         self.is_running = False
         self.is_loaded = True
-        pygame.mixer.pre_init(44100, -16, 2, 2048)
+
+        pygame.mixer.pre_init(
+            options["mixer_frequency"],
+            options["mixer_size"],
+            options["mixer_channels"],
+            options["mixer_buffer_size"]
+        )
         pygame.init()
 
+        load_music(options["music_file"])
+        pygame.mixer.music.set_volume(options["mixer_volume_music"])
+
         pygame.display.set_caption("Pytris")
-        self.screen_width = kwargs.get("screen_width", 651)
-        self.screen_height = kwargs.get("screen_height", 651)
         self.clock = pygame.time.Clock()
+
+        self.board = GameBoard(**options)
 
     def __del__(self):
         self.is_loaded = False
+        del self.board
         pygame.quit()
 
     def run(self):
         self.is_running = True
-        pygame.mixer.music.set_volume(0.3)
-        load_music('bg_music.ogg')
-        board = GameBoard(self.screen_width, self.screen_height)
-        board.initialize(pygame.time.get_ticks())
+        self.board.initialize(pygame.time.get_ticks())
+
         while self.is_running:
             if not pygame.mixer.music.get_busy():
                     pygame.mixer.music.play()
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if pygame.mouse.get_pressed() ==(1,0,0):
+                    if pygame.mouse.get_pressed()[self.LEFT_MOUSE_SEQUENCE_INDEX] == 1 :
                         position = pygame.mouse.get_pos()
-                        for buttons in board.buttons:
+                        for buttons in self.board.buttons:
                             buttons.check_click(position)
                 if event.type == pygame.QUIT:
                     self.is_running = False
@@ -40,8 +53,8 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         self.is_running = False
                     else:
-                        board.register_game_key_down(event.key)
+                        self.board.register_game_key_down(event.key)
                 if event.type == pygame.KEYUP:
-                    board.register_game_key_up(event.key)
-            board.update()
+                    self.board.register_game_key_up(event.key)
+            self.board.update()
             pygame.display.flip()
