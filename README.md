@@ -16,3 +16,13 @@ python run.py
 ## Configuration
 
 Most of the configs are stored in `pytris/config.py`. Play around at your own risk!
+
+
+## Release Notes
+
+* 2.0.0 - A complete refactor of the underlying code.
+  * Now pytris is a package that can be imported and run any number of ways; the simplest way is documented in `run.py`.
+  * This release supports multiple game-runs from a single python instance.
+  * Additionally, support for the Buffalo USB Game pad added.
+
+* 1.3.0 - The initial version loaded from Google projects source code. Invoke by calling `python Clone_of_Tetris.py`.
