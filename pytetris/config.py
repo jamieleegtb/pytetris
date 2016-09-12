@@ -1,4 +1,6 @@
 defaults={
+    "background_color": (0, 0, 0),
+    "grid_background_color": (0, 0, 0),
     "window_width": 651,
     "window_height": 651,
     "font_color": (255, 255, 255),
@@ -21,7 +23,6 @@ defaults={
     "rows": 21,
     "columns": 14,
     "show_grid": False,
-    "background_color": (0, 0, 0),
     "string_next": "NEXT",
     "string_level": "LEVEL: {}",
     "string_rows": "LINES: {}",

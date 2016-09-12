@@ -3,6 +3,7 @@ import pygame
 from .buttons import NewGameButton
 from .buttons import PauseButton
 from .cell import Cell
+from .grid import Grid
 from .shape import Shape
 from .shape_viewer import ShapeViewer
 from .util import draw_label
@@ -13,7 +14,7 @@ class GameBoard:
     SIMPLE_VALUE_NAMES = [
         "background_color", "button_height", "cell_height", "cell_width",
         "columns", "coordinate_x", "coordinate_y", "display_depth", "display_flags",
-        "down_key_shape_speed", "level", "rows",
+        "down_key_shape_speed", "grid_background_color", "level", "rows",
         "rows_shifted", "score", "score_accumulator_multiplier", "score_row_exponent",
         "score_row_multiplier", "speed_change_per_level", "speed_minimum", "shape_speed",
         "show_grid", "show_grid", "slow_time", "slow_time_shape_speed", "show_grid",
@@ -24,11 +25,7 @@ class GameBoard:
     def __init__(self, **kwargs):
         self.__load_simple_values(kwargs)
 
-        self.cells = []
         self.buttons = []
-        self.width = self.cell_width * self.columns
-        self.height = self.cell_height * self.rows
-        self.current_shape = None
         self.next_shape = None
         self.last_strafe = 0
         self.paused = False
@@ -43,6 +40,7 @@ class GameBoard:
                 self.display_depth
         )
 
+        _, self.font_height = label_dimensions("TEST")
         self.__reset_key_flags()
         self.__load_images()
 
@@ -54,7 +52,14 @@ class GameBoard:
                 (self.cell_width, self.cell_height)
         )
 
-        _, self.font_height = label_dimensions("TEST")
+        self.grid = Grid(
+                (0,0),
+                (self.columns,self.rows),
+                (kwargs["cell_width"], kwargs["cell_height"]),
+                kwargs["grid_background_color"],
+                kwargs["show_grid"]
+        )
+
 
         PauseButton(self, self.pause_button_image, ((self.columns+1)*self.cell_width, ((self.rows)*self.cell_height) - self.button_height))
         NewGameButton(self, self.new_button_image, ((self.columns+4)*self.cell_width, ((self.rows)*self.cell_height) - self.button_height))
@@ -70,29 +75,12 @@ class GameBoard:
         self.pause_button_image = load_image('start_stop_btn.png', False)
         self.new_button_image = load_image('new_game_btn.png', False)
 
-    def __initialize_grid(self):
-        if self.cells == []:
-            for row in range(self.rows):
-                self.cells.append([])
-                for col in range(self.columns):
-                    self.cells[row].append(Cell(
-                        row=row,
-                        column=col,
-                        x_coordinate=col*self.cell_height + self.coordinate_x,
-                        y_coordinate=row*self.cell_width + self.coordinate_y,
-                    ))
-        else:
-            for row in range(self.rows):
-                for col in range(self.columns):
-                    self.cells[row][col].active = False
-                    self.cells[row][col].clear()
 
     def __initialize_shapes(self):
-        self.current_shape = None
+        self.grid.clear_shape()
         self.generate_shape()
 
     def initialize(self):
-        self.__initialize_grid()
         self.__initialize_shapes()
 
     def reset(self):
@@ -109,28 +97,21 @@ class GameBoard:
     def generate_shape(self):
         self.__reset_key_flags()
 
-        self.current_shape = self.shape_previewer.shape
+        self.grid.current_shape = self.shape_previewer.shape
 
-        new_shape  = Shape.random(self)
+        new_shape  = Shape.random(self.grid)
         new_shape.rotate_random()
         new_shape.set_row_offset()
         new_shape.set_col_offset()
 
         self.shape_previewer.shape = new_shape
 
-        if self.current_shape is None:
+        if self.grid.current_shape is None:
             self.generate_shape()
         else:
-            self.current_shape.last_move = pygame.time.get_ticks()
+            self.grid.current_shape.last_move = pygame.time.get_ticks()
             self.shape_previewer.draw_shape()
 
-    def __update_current_shape(self):
-            for piece in self.current_shape.pieces:
-                if piece.row <= 0:
-                    piece.row = 0
-                    self.game_over = True
-                self.cells[piece.row][piece.col].active = True
-                self.cells[piece.row][piece.col].image = piece.image
 
     def update(self):
         if self.game_over and not self.paused:
@@ -143,22 +124,24 @@ class GameBoard:
         self.__refresh_screen()
 
         time = pygame.time.get_ticks()
-        if self.current_shape.active:
+        if self.grid.current_shape.active:
             if self.key_left_flag:
                 if time - self.last_strafe >= self.strafe_rate:
-                    self.current_shape.move_left()
+                    self.grid.current_shape.move_left()
                     self.last_strafe = time
             elif self.key_right_flag:
                 if time - self.last_strafe >= self.strafe_rate:
-                    self.current_shape.move_right()
+                    self.grid.current_shape.move_right()
                     self.last_strafe = time
-            if time - self.current_shape.last_move >= self.get_speed():
-                self.current_shape.move_down()
-                self.current_shape.last_move = time
+            if time - self.grid.current_shape.last_move >= self.get_speed():
+                self.grid.current_shape.move_down()
+                self.grid.current_shape.last_move = time
         else:
-            self.__update_current_shape()
-            self.check_rows()
-            self.generate_shape()
+            if self.grid.update_and_validate():
+                self.__update_score(self.grid.clear_and_count_rows())
+                self.generate_shape()
+            else:
+                self.game_over = True
 
     def get_speed(self):
         speed = self.shape_speed
@@ -176,24 +159,24 @@ class GameBoard:
                 self.reset()
         else:
             if key == pygame.K_g:
-                self.toggle_grid()
-                self.update(pygame.time.get_ticks())
+                self.grid.toggle_grid_marks()
+                self.update()
             elif key == pygame.K_s:
                 self.toggle_slow_time()
             elif key == pygame.K_LEFT:
                 if self.last_strafe == 0:
-                    self.current_shape.move_left()
+                    self.grid.current_shape.move_left()
                     self.last_strafe = (pygame.time.get_ticks()+self.strafe_tick_lag)
                     self.key_left_flag = True
             elif key == pygame.K_RIGHT:
                 if self.last_strafe == 0:
-                    self.current_shape.move_right()
+                    self.grid.current_shape.move_right()
                     self.last_strafe = (pygame.time.get_ticks()+self.strafe_tick_lag)
                     self.key_right_flag = True
             elif key == pygame.K_DOWN:
                 self.key_down_flag = True
             elif key == pygame.K_UP:
-                self.current_shape.rotate()
+                self.grid.current_shape.rotate()
 
     def register_game_key_up(self, key):
         if key == pygame.K_DOWN:
@@ -205,36 +188,12 @@ class GameBoard:
             self.key_right_flag = False
             self.last_strafe = 0
 
-    def toggle_grid(self):
-        self.show_grid = not self.show_grid
-
     def toggle_slow_time(self):
         self.slow_time = not self.slow_time
 
-    def check_rows(self):
-        row_count = 0
-        for row in range(self.rows):
-            flag_row = True
-            for col in range(self.columns):
-                if self.cells[row][col].active:
-                    flag_row = True
-                    continue
-                if not self.cells[row][col].active:
-                    flag_row = False
-                    break
-            if flag_row:
-                self.shift_row(row)
-                row_count += 1
-                self.rows_shifted += 1
-        self.__update_score(row_count)
-
-    def shift_row(self, row_number):
-        for row in range(row_number, 0, -1):
-            for col in range(self.columns):
-                self.cells[row][col].active = self.cells[row-1][col].active
-                self.cells[row][col].image = self.cells[row-1][col].image
 
     def __update_score(self, rows_cleared):
+        self.rows_shifted += rows_cleared
         self.score += pow(rows_cleared,self.score_row_exponent)*self.score_row_multiplier
         self.score += self.level * rows_cleared * self.score_accumulator_multiplier
 
@@ -252,7 +211,7 @@ class GameBoard:
     def __refresh_screen(self):
         self.screen.blit(self.board_bg_image, (self.coordinate_x,self.coordinate_y))
         self.__draw_sidebar()
-        self.__draw_grid()
+        self.grid.draw(self.screen)
 
     def __draw_game_over(self):
         xx = self.game_over_image.get_width()
@@ -288,17 +247,3 @@ class GameBoard:
         for buttons in self.buttons:
             buttons.draw(self.screen)
 
-    def __draw_grid(self):
-        border_topx, border_topy = self.cells[0][0].rect.topleft
-        border_btmx, border_btmy = self.cells[self.rows-1][self.columns-1].rect.bottomright
-        pygame.draw.rect(self.screen, self.background_color, ((border_topx,border_topy),(border_btmx+1,border_btmy)), 1)
-
-        for item in self.cells:
-            for cell in item:
-                if self.show_grid:
-                    self.screen.blit(cell.image, cell.rect.topleft)
-                if cell.active:
-                    self.screen.blit(cell.image, cell.rect.topleft)
-        for piece in self.current_shape.pieces:
-            piece_position = self.cells[piece.row][piece.col].rect.topleft
-            self.screen.blit(piece.image, piece_position)
