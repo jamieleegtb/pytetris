@@ -4,13 +4,16 @@ from .buttons import NewGameButton
 from .buttons import PauseButton
 from .cell import Cell
 from .shape import Shape
+from .shape_viewer import ShapeViewer
+from .util import draw_label
 from .util import load_image
+from .util import label_dimensions
 
 class GameBoard:
     SIMPLE_VALUE_NAMES = [
         "background_color", "button_height", "cell_height", "cell_width",
         "columns", "coordinate_x", "coordinate_y", "display_depth", "display_flags",
-        "down_key_shape_speed", "font_color", "font_size", "level", "rows",
+        "down_key_shape_speed", "level", "rows",
         "rows_shifted", "score", "score_accumulator_multiplier", "score_row_exponent",
         "score_row_multiplier", "speed_change_per_level", "speed_minimum", "shape_speed",
         "show_grid", "show_grid", "slow_time", "slow_time_shape_speed", "show_grid",
@@ -27,7 +30,6 @@ class GameBoard:
         self.height = self.cell_height * self.rows
         self.current_shape = None
         self.next_shape = None
-        self.queue_image = pygame.Surface(kwargs["queue_dimensions"])
         self.last_strafe = 0
         self.paused = False
         self.game_over = False
@@ -44,7 +46,15 @@ class GameBoard:
         self.__reset_key_flags()
         self.__load_images()
 
-        self.font = pygame.font.SysFont("arial black", self.font_size)
+        shape_viewer_offset_x = (self.columns + 1) * self.cell_width
+        shape_viewer_offset_y = self.cell_height
+        self.shape_previewer = ShapeViewer("NEXT",
+                (shape_viewer_offset_x, shape_viewer_offset_y),
+                kwargs["queue_dimensions"],
+                (self.cell_width, self.cell_height)
+        )
+
+        _, self.font_height = label_dimensions("TEST")
 
         PauseButton(self, self.pause_button_image, ((self.columns+1)*self.cell_width, ((self.rows)*self.cell_height) - self.button_height))
         NewGameButton(self, self.new_button_image, ((self.columns+4)*self.cell_width, ((self.rows)*self.cell_height) - self.button_height))
@@ -56,7 +66,6 @@ class GameBoard:
     def __load_images(self):
         self.game_over_image = load_image('game_over.png')
         self.board_bg_image = load_image('board_bg.png', False)
-        self.queue_bg_image = load_image('queue_bg_color.png', False)
         self.side_bar_image = load_image('side_bar.png', False)
         self.pause_button_image = load_image('start_stop_btn.png', False)
         self.new_button_image = load_image('new_game_btn.png', False)
@@ -100,40 +109,20 @@ class GameBoard:
     def generate_shape(self):
         self.__reset_key_flags()
 
-        self.current_shape = self.next_shape
+        self.current_shape = self.shape_previewer.shape
 
-        self.next_shape = Shape.random(self)
-        self.next_shape.rotate_random()
-        self.next_shape.set_row_offset()
-        self.next_shape.set_col_offset()
+        new_shape  = Shape.random(self)
+        new_shape.rotate_random()
+        new_shape.set_row_offset()
+        new_shape.set_col_offset()
+
+        self.shape_previewer.shape = new_shape
+
         if self.current_shape is None:
             self.generate_shape()
         else:
             self.current_shape.last_move = pygame.time.get_ticks()
-            self.__draw_next_shape()
-
-    def __draw_next_shape(self):
-        col_index = []
-        row_index = []
-        shape_rows = 0
-        shape_columns = 0
-        for piece in self.next_shape.pieces:
-            if piece.row not in row_index:
-                row_index.append(piece.row)
-                shape_rows += 1
-            if piece.col not in col_index:
-                col_index.append(piece.col)
-                shape_columns += 1
-        x_offset = (self.queue_image.get_width()/2) - ((shape_columns * self.cell_width)/2)
-        y_offset = (self.queue_image.get_height()/2) - ((shape_rows * self.cell_height)/2)
-        self.queue_image.blit(self.queue_bg_image, (0,0))
-        for piece in self.next_shape.pieces:
-            if self.next_shape.shape == 2 and self.next_shape.shape_rotation == 1:
-                x = x_offset
-            else:
-                x = x_offset + ((piece.col - 6) * self.cell_width)
-            y = y_offset + (piece.row * self.cell_height)
-            self.queue_image.blit(piece.image, (x, y))
+            self.shape_previewer.draw_shape()
 
     def __update_current_shape(self):
             for piece in self.current_shape.pieces:
@@ -274,36 +263,25 @@ class GameBoard:
         )
         self.screen.blit(self.game_over_image, draw_shape)
 
-    def __render_label(self, message, location, params=None):
-        _message = message
-        if params is not None:
-            _message = _message.format(*params)
-        self.screen.blit(self.font.render(_message, True, self.font_color), location)
-
     def __draw_sidebar(self):
         self.screen.blit(self.side_bar_image, (self.cell_width*self.columns,0))
-        x_coordinate = (self.columns + 1) * self.cell_width
-        y_coordinate = self.cell_height
-        self.screen.blit(self.queue_image, (x_coordinate, y_coordinate))
-
-        font_w_next,font_h = self.font.size(self.string_next)
-        x_coordinate += ((self.queue_image.get_width()/2) - (font_w_next/2))
-        y_coordinate -= font_h
-        self.__render_label(self.string_next, (x_coordinate,y_coordinate))
+        self.shape_previewer.draw(self.screen)
 
         screen_midpoint_y = self.screen.get_height()/2
-        self.__render_label(self.string_level,
+        draw_label(self.screen, self.string_level,
             location=((self.columns+1)*self.cell_width, screen_midpoint_y),
             params=[self.level]
         )
 
-        self.__render_label(self.string_rows,
-            location=((self.columns+1)*self.cell_width, screen_midpoint_y - 2*font_h),
+        draw_label(self.screen,
+            self.string_rows,
+            location=((self.columns+1)*self.cell_width, screen_midpoint_y - 2*self.font_height),
             params=[self.rows_shifted]
         )
 
-        self.__render_label(self.string_score,
-            location=((self.columns+1)*self.cell_width, screen_midpoint_y - 4*font_h),
+        draw_label(self.screen,
+            self.string_score,
+            location=((self.columns+1)*self.cell_width, screen_midpoint_y - 4*self.font_height),
             params=[self.score]
         )
 

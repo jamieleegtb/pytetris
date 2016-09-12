@@ -1,6 +1,8 @@
 defaults={
     "window_width": 651,
     "window_height": 651,
+    "font_color": (255, 255, 255),
+    "font_name": "arial black",
     "font_size": 36,
     "button_height": 45,
 
@@ -18,7 +20,6 @@ defaults={
     "rows": 21,
     "columns": 14,
     "show_grid": False,
-    "font_color": (255, 255, 255),
     "background_color": (0, 0, 0),
     "string_next": "NEXT",
     "string_level": "LEVEL: {}",
