@@ -28,6 +28,9 @@ class Game:
         pygame.mixer.music.set_volume(options["mixer_volume_music"])
 
         pygame.display.set_caption("Pytris")
+        if options["full_screen"]:
+            options["display_flags"] = pygame.FULLSCREEN
+
         self.clock = pygame.time.Clock()
 
         self.board = GameBoard(**options)

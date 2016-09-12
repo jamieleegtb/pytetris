@@ -5,6 +5,7 @@ defaults={
     "font_name": "arial black",
     "font_size": 36,
     "button_height": 45,
+    "full_screen": True,
 
   #Audio settings
     "mixer_frequency": 44100,
