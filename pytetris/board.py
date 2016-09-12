@@ -161,6 +161,8 @@ class GameBoard:
             if key == pygame.K_g:
                 self.grid.toggle_grid_marks()
                 self.update()
+            if key == pygame.K_k:
+                self.generate_shape()
             elif key == pygame.K_s:
                 self.toggle_slow_time()
             elif key == pygame.K_LEFT:
