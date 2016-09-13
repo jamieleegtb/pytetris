@@ -12,20 +12,24 @@ class Game:
         options.update(kwargs)
         self.is_running = False
         self.is_loaded = True
+        self.sound_on = options["sound_on"]
 
-        pygame.mixer.pre_init(
-            options["mixer_frequency"],
-            options["mixer_size"],
-            options["mixer_channels"],
-            options["mixer_buffer_size"]
-        )
+
+        if self.sound_on:
+            pygame.mixer.pre_init(
+                options["mixer_frequency"],
+                options["mixer_size"],
+                options["mixer_channels"],
+                options["mixer_buffer_size"]
+            )
         pygame.init()
         pygame.joystick.init()
 
-        load_music(options["music_file"])
         [pygame.joystick.Joystick(x).init() for x in range(pygame.joystick.get_count())]
 
-        pygame.mixer.music.set_volume(options["mixer_volume_music"])
+        if self.sound_on:
+            load_music(options["music_file"])
+            pygame.mixer.music.set_volume(options["mixer_volume_music"])
 
         pygame.display.set_caption("Pytris")
         if options["full_screen"]:
@@ -48,8 +52,9 @@ class Game:
         self.board.initialize()
 
         while self.is_running:
-            if not pygame.mixer.music.get_busy():
-                    pygame.mixer.music.play()
+            if self.sound_on:
+                if not pygame.mixer.music.get_busy():
+                        pygame.mixer.music.play()
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[self.LEFT_MOUSE_SEQUENCE_INDEX] == 1 :

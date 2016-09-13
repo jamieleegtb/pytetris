@@ -13,6 +13,7 @@ defaults={
     "full_screen": True,
 
   #Audio settings
+    "sound_on": False,
     "mixer_frequency": 44100,
     "mixer_size": -16,
     "mixer_channels": 2,
