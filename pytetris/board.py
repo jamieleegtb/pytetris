@@ -12,23 +12,24 @@ from .util import label_dimensions
 
 class GameBoard:
     SIMPLE_VALUE_NAMES = [
-        "background_color", "button_height", "cell_height", "cell_width",
+        "background_color", "begin_paused", "button_height", "cell_height", "cell_width",
         "columns", "coordinate_x", "coordinate_y", "display_depth", "display_flags",
         "down_key_shape_speed", "grid_background_color", "level", "rows",
         "rows_shifted", "score", "score_accumulator_multiplier", "score_row_exponent",
         "score_row_multiplier", "speed_change_per_level", "speed_minimum", "shape_speed",
         "show_grid", "show_grid", "slow_time", "slow_time_shape_speed", "show_grid",
         "strafe_rate", "strafe_tick_lag", "string_level", "string_next", "string_rows",
-        "string_score", "window_height", "window_width",
+        "string_pause", "string_resume", "string_score",  "window_height", "window_width",
     ]
 
     def __init__(self, **kwargs):
         self.__load_simple_values(kwargs)
+        self.first_frame_drawn = False
 
         self.buttons = []
         self.next_shape = None
         self.last_strafe = 0
-        self.paused = False
+        self.paused = self.begin_paused
         self.game_over = False
         self.original_shape_speed = self.shape_speed
         self.original_level = self.level
@@ -73,6 +74,7 @@ class GameBoard:
 
     def __load_images(self):
         self.game_over_image = load_image('game_over.png')
+        self.pause_image = load_image('buffalo.png')
         self.board_bg_image = load_image('board_bg.png', False)
         self.side_bar_image = load_image('side_bar.png', False)
         self.pause_button_image = load_image('start_stop_btn.png', False)
@@ -87,8 +89,9 @@ class GameBoard:
         self.__initialize_shapes()
 
     def reset(self):
+        self.first_frame_drawn
         self.shape_speed = self.original_shape_speed
-        self.paused = False
+        self.paused = self.begin_paused
         self.slow_time = False
         self.game_over = False
         self.rows_shifted = 0
@@ -121,6 +124,9 @@ class GameBoard:
             self.__draw_game_over()
 
         if self.paused:
+            if not self.game_over:
+                self.__refresh_screen()
+                self.__draw_pause_screen()
             return
 
         self.__refresh_screen()
@@ -264,4 +270,37 @@ class GameBoard:
 
         for buttons in self.buttons:
             buttons.draw(self.screen)
+
+    def __draw_pause_screen(self):
+        top_left = (self.coordinate_x + self.font_height, self.coordinate_y + self.font_height)
+        bottom_x = self.coordinate_x + self.window_width - 2*self.font_height
+        right_y = self.coordinate_y + self.window_height - 2*self.font_height
+        bottom_right = (bottom_x, right_y)
+
+        pygame.draw.rect(self.screen,
+            (24,24,24),
+            (top_left, bottom_right),
+            0
+        )
+
+        width, _ = label_dimensions(self.string_pause)
+        draw_label(self.screen,
+            self.string_pause,
+            location=(self.window_width/2 - width/2, 2*self.font_height)
+        )
+
+        width, _ = label_dimensions(self.string_resume)
+
+        draw_label(self.screen,
+            self.string_resume,
+            location=(self.window_width/2 - width/2, 4*self.font_height)
+        )
+
+        xx = self.pause_image.get_width()
+        yy = self.pause_image.get_height()
+        draw_shape = (
+            (self.window_width - xx)/2,
+            (self.window_height - yy)/2,
+        )
+        self.screen.blit(self.pause_image, draw_shape)
 

@@ -1,6 +1,7 @@
 defaults={
     "allow_restarts": True,
     "background_color": (0, 0, 0),
+    "begin_paused": True,
     "grid_background_color": (0, 0, 0),
     "window_width": 651,
     "window_height": 651,
@@ -25,6 +26,8 @@ defaults={
     "columns": 14,
     "show_grid": False,
     "string_next": "NEXT",
+    "string_pause": "PAUSED",
+    "string_resume": "To Resume Press Start ( or P )",
     "string_level": "LEVEL: {}",
     "string_rows": "LINES: {}",
     "string_score": "SCORE: {}",
