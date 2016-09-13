@@ -1,4 +1,5 @@
 defaults={
+    "allow_restarts": True,
     "background_color": (0, 0, 0),
     "grid_background_color": (0, 0, 0),
     "window_width": 651,

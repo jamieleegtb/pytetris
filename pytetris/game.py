@@ -31,6 +31,8 @@ class Game:
         if options["full_screen"]:
             options["display_flags"] = pygame.FULLSCREEN
 
+        self.allow_restarts = options["allow_restarts"]
+
         self.clock = pygame.time.Clock()
 
         self.board = GameBoard(**options)
@@ -61,6 +63,12 @@ class Game:
 
             self.board.update()
             pygame.display.flip()
+
+            if not self.allow_restarts and self.board.game_over:
+                pygame.time.wait(3000)
+                self.is_running == False
+
+
 
     def __handle_game_event(self, event):
         if event.type == pygame.KEYDOWN:

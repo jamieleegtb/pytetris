@@ -114,10 +114,6 @@ class GameBoard:
 
 
     def update(self):
-        if self.game_over and not self.paused:
-            self.paused = True
-            self.__draw_game_over()
-
         if self.paused:
             return
 
@@ -141,7 +137,12 @@ class GameBoard:
                 self.__update_score(self.grid.clear_and_count_rows())
                 self.generate_shape()
             else:
-                self.game_over = True
+                self.end_game()
+
+    def end_game(self):
+        self.game_over = True
+        self.paused = True
+        self.__draw_game_over()
 
     def get_speed(self):
         speed = self.shape_speed
