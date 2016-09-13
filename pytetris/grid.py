@@ -56,6 +56,10 @@ class Grid:
                 self.cells[row][col].active = self.cells[row-1][col].active
                 self.cells[row][col].image = self.cells[row-1][col].image
 
+    def reset(self):
+        self.clear_shape()
+        self.__reset_cells()
+
     def __reset_cells(self):
         for row in range(self.row_count):
             for col in range(self.column_count):

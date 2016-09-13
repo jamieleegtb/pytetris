@@ -92,7 +92,7 @@ class GameBoard:
         self.rows_shifted = 0
         self.level = 1
         self.score = 0
-        self.__initialize_grid()
+        self.grid.reset()
         self.__initialize_shapes()
 
     def generate_shape(self):
@@ -115,6 +115,9 @@ class GameBoard:
 
 
     def update(self):
+        if self.game_over:
+            self.__draw_game_over()
+
         if self.paused:
             return
 
