@@ -60,9 +60,10 @@ class GameBoard:
                 kwargs["show_grid"]
         )
 
-
         PauseButton(self, self.pause_button_image, ((self.columns+1)*self.cell_width, ((self.rows)*self.cell_height) - self.button_height))
         NewGameButton(self, self.new_button_image, ((self.columns+4)*self.cell_width, ((self.rows)*self.cell_height) - self.button_height))
+
+        self.shape_skip_handler = kwargs.get("shape_skip_handler", None)
 
     def __load_simple_values(self, options):
         for value_name in self.SIMPLE_VALUE_NAMES:
@@ -163,6 +164,8 @@ class GameBoard:
                 self.grid.toggle_grid_marks()
                 self.update()
             if key == pygame.K_k:
+                if self.shape_skip_handler is not None:
+                    self.shape_skip_handler()
                 self.generate_shape()
             elif key == pygame.K_s:
                 self.toggle_slow_time()

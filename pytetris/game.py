@@ -102,6 +102,8 @@ class Game:
                 self.board.register_game_key_down(pygame.K_p)
             elif event.button == 6:
                 self.is_running = False
+            elif event.button == 5:
+                self.board.register_game_key_down(pygame.K_k)
 
         if event.type == pygame.JOYBUTTONUP:
             if event.button == 1:
