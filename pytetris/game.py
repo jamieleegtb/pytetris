@@ -96,17 +96,18 @@ class Game:
                     self.board.register_game_key_down(pygame.K_UP)
 
         if event.type == pygame.JOYBUTTONDOWN:
-            if event.button == 1:
+            if event.button == 0 or event.button == 3:
+                self.board.register_game_key_down(pygame.K_k)
+            elif event.button == 2:
+                self.board.register_game_key_down(pygame.K_i)
+            elif event.button == 1:
+                self.board.register_game_key_down(pygame.K_m)
+            elif event.button == 4 or event.button == 5:
                 self.board.register_game_key_down(pygame.K_UP)
-            elif event.button == 7:
-                self.board.register_game_key_down(pygame.K_p)
             elif event.button == 6:
                 self.is_running = False
-            elif event.button == 5:
-                self.board.register_game_key_down(pygame.K_k)
+            elif event.button == 7:
+                self.board.register_game_key_down(pygame.K_p)
 
-        if event.type == pygame.JOYBUTTONUP:
-            if event.button == 1:
-                self.board.register_game_key_up(pygame.K_UP)
         if event.type == pygame.KEYUP:
             self.board.register_game_key_up(event.key)

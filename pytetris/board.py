@@ -64,6 +64,8 @@ class GameBoard:
         NewGameButton(self, self.new_button_image, ((self.columns+4)*self.cell_width, ((self.rows)*self.cell_height) - self.button_height))
 
         self.shape_skip_handler = kwargs.get("shape_skip_handler", None)
+        self.clear_bottom_row_handler = kwargs.get("clear_bottom_row_handler", None)
+        self.clear_top_row_handler = kwargs.get("clear_top_row_handler", None)
 
     def __load_simple_values(self, options):
         for value_name in self.SIMPLE_VALUE_NAMES:
@@ -170,6 +172,14 @@ class GameBoard:
                 if self.shape_skip_handler is not None:
                     self.shape_skip_handler()
                 self.generate_shape()
+            if key == pygame.K_i:
+                if self.clear_top_row_handler is not None:
+                    self.clear_top_row()
+                self.grid.clear_top_row()
+            if key == pygame.K_m:
+                if self.clear_bottom_row_handler is not None:
+                    self.clear_bottom_row()
+                self.grid.clear_bottom_row()
             elif key == pygame.K_s:
                 self.toggle_slow_time()
             elif key == pygame.K_LEFT:
@@ -199,7 +209,6 @@ class GameBoard:
 
     def toggle_slow_time(self):
         self.slow_time = not self.slow_time
-
 
     def __update_score(self, rows_cleared):
         self.rows_shifted += rows_cleared

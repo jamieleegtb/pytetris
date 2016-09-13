@@ -76,6 +76,7 @@ class Grid:
         border_topx, border_topy = self.cells[0][0].rect.topleft
         border_btmx, border_btmy = self.cells[self.row_count-1][self.column_count-1].rect.bottomright
         pygame.draw.rect(screen, self.background_color, ((border_topx,border_topy),(border_btmx+1,border_btmy)), 1)
+        self.highest_active_row = self.row_count - 1
 
         for item in self.cells:
             for cell in item:
@@ -83,6 +84,15 @@ class Grid:
                     screen.blit(cell.image, cell.rect.topleft)
                 if cell.active:
                     screen.blit(cell.image, cell.rect.topleft)
+                    if cell.row < self.highest_active_row:
+                        self.highest_active_row = cell.row
+
         for piece in self.current_shape.pieces:
             piece_position = self.cells[piece.row][piece.col].rect.topleft
             screen.blit(piece.image, piece_position)
+
+    def clear_bottom_row(self):
+        self.shift_row(self.row_count - 1)
+
+    def clear_top_row(self):
+        self.shift_row(self.highest_active_row)
