@@ -6,8 +6,8 @@ defaults={
     "window_width": 651,
     "window_height": 651,
     "font_color": (255, 255, 255),
-    "font_name": "arial black",
-    "font_size": 36,
+    "font_file": "VT323-Regular.ttf",
+    "font_size": 24,
     "button_height": 45,
     "full_screen": True,
 

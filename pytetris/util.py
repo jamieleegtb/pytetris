@@ -19,14 +19,15 @@ def load_music(filename):
 
 class _FontLoader:
     FONT = None
-    FONT_NAME = defaults["font_name"]
+    FONT_DIRECTORY='resources'
+    FONT_FILE = defaults["font_file"]
     FONT_SIZE = defaults["font_size"]
     FONT_COLOR = defaults["font_color"]
 
     @classmethod
     def get_font(cls):
         if cls.FONT is None:
-            cls.FONT = pygame.font.SysFont(cls.FONT_NAME, cls.FONT_SIZE)
+            cls.FONT = pygame.font.Font(os.path.join(cls.FONT_DIRECTORY, cls.FONT_FILE), cls.FONT_SIZE)
         return cls.FONT
 
     @classmethod
