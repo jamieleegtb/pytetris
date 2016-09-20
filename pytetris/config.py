@@ -1,5 +1,6 @@
 defaults={
     "allow_restarts": True,
+    "power_up_mode_active": False,
     "background_color": (0, 0, 0),
     "begin_paused": True,
     "grid_background_color": (0, 0, 0),

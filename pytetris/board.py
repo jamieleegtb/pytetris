@@ -20,6 +20,7 @@ class GameBoard:
         "show_grid", "show_grid", "slow_time", "slow_time_shape_speed", "show_grid",
         "strafe_rate", "strafe_tick_lag", "string_level", "string_next", "string_rows",
         "string_pause", "string_resume", "string_score",  "window_height", "window_width",
+        "power_up_mode_active",
     ]
 
     def __init__(self, **kwargs):
@@ -174,15 +175,15 @@ class GameBoard:
             if key == pygame.K_g:
                 self.grid.toggle_grid_marks()
                 self.update()
-            if key == pygame.K_k:
+            if self.power_up_mode_active and key == pygame.K_k:
                 if self.shape_skip_handler is not None:
                     self.shape_skip_handler()
                 self.generate_shape()
-            if key == pygame.K_i:
+            if self.power_up_mode_active and key == pygame.K_i:
                 if self.clear_top_row_handler is not None:
                     self.clear_top_row()
                 self.grid.clear_top_row()
-            if key == pygame.K_m:
+            if self.power_up_mode_active and key == pygame.K_m:
                 if self.clear_bottom_row_handler is not None:
                     self.clear_bottom_row()
                 self.grid.clear_bottom_row()
