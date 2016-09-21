@@ -5,7 +5,7 @@ from .config import defaults
 from .util import load_music
 
 class Game:
-    LEFT_MOUSE_SEQUENCE_INDEX = 1
+    LEFT_MOUSE_SEQUENCE_INDEX = 0
 
     def __init__(self, **kwargs):
         options = defaults.copy()
