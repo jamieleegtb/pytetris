@@ -181,11 +181,11 @@ class GameBoard:
                 self.generate_shape()
             if self.power_up_mode_active and key == pygame.K_i:
                 if self.clear_top_row_handler is not None:
-                    self.clear_top_row()
+                    self.clear_top_row_handler()
                 self.grid.clear_top_row()
             if self.power_up_mode_active and key == pygame.K_m:
                 if self.clear_bottom_row_handler is not None:
-                    self.clear_bottom_row()
+                    self.clear_bottom_row_handler()
                 self.grid.clear_bottom_row()
             elif key == pygame.K_s:
                 self.toggle_slow_time()
