@@ -11,6 +11,7 @@ defaults={
     "font_size": 24,
     "button_height": 45,
     "full_screen": True,
+    "game_over_display_time": 2000,
 
   #Audio settings
     "sound_on": False,

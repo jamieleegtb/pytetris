@@ -13,7 +13,7 @@ class Game:
         self.is_running = False
         self.is_loaded = True
         self.sound_on = options["sound_on"]
-
+        self.game_over_display_time = options["game_over_display_time"]
 
         if self.sound_on:
             pygame.mixer.pre_init(
@@ -69,11 +69,10 @@ class Game:
             self.board.update()
             pygame.display.flip()
 
-            if not self.allow_restarts and self.board.game_over:
-                pygame.time.wait(3000)
-                self.is_running == False
-
-
+            if self.board.game_over:
+                pygame.time.wait(self.game_over_display_time)
+                if not self.allow_restarts:
+                    self.is_running == False
 
     def __handle_game_event(self, event):
         if event.type == pygame.KEYDOWN:
