@@ -3,11 +3,11 @@ import pygame
 from .cell import Cell
 
 class Grid:
-    def __init__(self, top_left, grid_dimensions, cell_dimensions, background_color, show_grid_marks):
+    def __init__(self, top_left, grid_dimensions, cell_dimensions, border_color, show_grid_marks):
         self.offset_x, self.offset_y = top_left
         self.column_count, self.row_count = grid_dimensions
         self.cell_width, self.cell_height = cell_dimensions
-        self.background_color = background_color
+        self.border_color = border_color
         self.show_grid_marks = show_grid_marks
         self.cells = []
         self.current_shape = None
@@ -75,7 +75,7 @@ class Grid:
     def draw(self, screen):
         border_topx, border_topy = self.cells[0][0].rect.topleft
         border_btmx, border_btmy = self.cells[self.row_count-1][self.column_count-1].rect.bottomright
-        pygame.draw.rect(screen, self.background_color, ((border_topx,border_topy),(border_btmx+1,border_btmy)), 1)
+        pygame.draw.rect(screen, self.border_color, ((border_topx,border_topy),(border_btmx+1,border_btmy)), 1)
         self.highest_active_row = self.row_count - 1
 
         for item in self.cells:

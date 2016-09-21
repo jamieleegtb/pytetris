@@ -14,7 +14,7 @@ class GameBoard:
     SIMPLE_VALUE_NAMES = [
         "background_color", "begin_paused", "button_height", "cell_height", "cell_width",
         "columns", "coordinate_x", "coordinate_y", "display_depth", "display_flags",
-        "down_key_shape_speed", "grid_background_color", "level", "rows",
+        "down_key_shape_speed", "grid_border_color", "level", "rows",
         "rows_shifted", "score", "score_accumulator_multiplier", "score_row_exponent",
         "score_row_multiplier", "speed_change_per_level", "speed_minimum", "shape_speed",
         "show_grid", "show_grid", "slow_time", "slow_time_shape_speed", "show_grid",
@@ -58,7 +58,7 @@ class GameBoard:
                 (0,0),
                 (self.columns,self.rows),
                 (kwargs["cell_width"], kwargs["cell_height"]),
-                kwargs["grid_background_color"],
+                kwargs["grid_border_color"],
                 kwargs["show_grid"]
         )
 
